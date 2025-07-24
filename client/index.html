@@ -1,13 +1,36 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <!-- Character encoding declaration - ensures proper text rendering -->
     <meta charset="UTF-8" />
+    
+    <!-- Viewport meta tag for responsive design
+         - width=device-width: matches screen width
+         - initial-scale=1.0: sets initial zoom level
+         - maximum-scale=1: prevents user zoom (for mobile consistency) -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    
+    <!-- No explicit title tag - will be set dynamically by React -->
+    <!-- No favicon link - using browser default -->
+    <!-- CSS will be injected by Vite during build process -->
   </head>
   <body>
+    <!-- Root container for React application
+         - All React components will be rendered inside this div
+         - The id "root" matches the mounting point in main.tsx -->
     <div id="root"></div>
+    
+    <!-- Main application entry point
+         - type="module": enables ES6 module imports
+         - src="/src/main.tsx": TypeScript entry file for React app
+         - Vite will process this during development and build -->
     <script type="module" src="/src/main.tsx"></script>
-    <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
+    
+    <!-- Replit development banner script
+         - Only shows when app is opened outside the Replit environment
+         - Adds a banner at the top of the page for branding/navigation
+         - Automatically included in Replit projects for better UX -->
     <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
   </body>
 </html>
