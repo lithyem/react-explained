@@ -1,23 +1,42 @@
 {
+  // TypeScript Configuration for Full-Stack Application
+  // This file configures TypeScript compilation for both client and server code
+  // It enables type checking across the entire monorepo structure
+
+  // Files to include in TypeScript compilation
+  // Covers all source code in client, server, and shared directories
   "include": ["client/src/**/*", "shared/**/*", "server/**/*"],
+  
+  // Files to exclude from compilation
+  // Excludes build outputs, dependencies, and test files to improve performance
   "exclude": ["node_modules", "build", "dist", "**/*.test.ts"],
+  
   "compilerOptions": {
-    "incremental": true,
-    "tsBuildInfoFile": "./node_modules/typescript/tsbuildinfo",
-    "noEmit": true,
-    "module": "ESNext",
-    "strict": true,
-    "lib": ["esnext", "dom", "dom.iterable"],
-    "jsx": "preserve",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "allowImportingTsExtensions": true,
-    "moduleResolution": "bundler",
-    "baseUrl": ".",
-    "types": ["node", "vite/client"],
+    // Performance optimizations
+    "incremental": true, // Enable incremental compilation for faster rebuilds
+    "tsBuildInfoFile": "./node_modules/typescript/tsbuildinfo", // Cache compilation info
+    "noEmit": true, // Don't emit JavaScript files (Vite and ESBuild handle this)
+    
+    // Module system configuration
+    "module": "ESNext", // Use modern ES modules for tree shaking and better bundling
+    "moduleResolution": "bundler", // Use bundler-aware module resolution
+    "esModuleInterop": true, // Enable interop between CommonJS and ES modules
+    "allowImportingTsExtensions": true, // Allow importing .ts files directly
+    
+    // Type checking strictness
+    "strict": true, // Enable all strict type checking options for better code quality
+    "skipLibCheck": true, // Skip type checking of declaration files for faster compilation
+    
+    // Runtime environment configuration
+    "lib": ["esnext", "dom", "dom.iterable"], // Include modern JS and DOM APIs
+    "jsx": "preserve", // Preserve JSX for Vite to transform
+    "types": ["node", "vite/client"], // Include Node.js and Vite client types
+    
+    // Path mapping for cleaner imports
+    "baseUrl": ".", // Base directory for relative path resolution
     "paths": {
-      "@/*": ["./client/src/*"],
-      "@shared/*": ["./shared/*"]
+      "@/*": ["./client/src/*"], // Map @/ to client source directory
+      "@shared/*": ["./shared/*"] // Map @shared/ to shared code directory
     }
   }
 }

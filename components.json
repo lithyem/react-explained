@@ -1,20 +1,36 @@
 {
+    // shadcn/ui Configuration File
+    // This file configures the shadcn/ui CLI tool for generating and managing UI components
+    // It defines paths, styling preferences, and component generation settings
+    
     "$schema": "https://ui.shadcn.com/schema.json",
+    
+    // Component style variant - "new-york" provides a more modern, refined look
+    // Alternative is "default" for a more basic styling approach
     "style": "new-york",
+    
+    // React Server Components support - disabled since we're using client-side React
     "rsc": false,
+    
+    // Use TypeScript JSX syntax for all generated components
     "tsx": true,
+    
+    // Tailwind CSS integration settings
     "tailwind": {
-      "config": "tailwind.config.ts",
-      "css": "client/src/index.css",
-      "baseColor": "neutral",
-      "cssVariables": true,
-      "prefix": ""
+      "config": "tailwind.config.ts", // Path to Tailwind config file
+      "css": "client/src/index.css", // Main CSS file with Tailwind directives
+      "baseColor": "neutral", // Default color palette for components
+      "cssVariables": true, // Use CSS custom properties for theming
+      "prefix": "" // No prefix for Tailwind classes
     },
+    
+    // Path aliases for clean imports in generated components
+    // These match the paths configured in tsconfig.json
     "aliases": {
-      "components": "@/components",
-      "utils": "@/lib/utils",
-      "ui": "@/components/ui",
-      "lib": "@/lib",
-      "hooks": "@/hooks"
+      "components": "@/components", // General components directory
+      "utils": "@/lib/utils", // Utility functions
+      "ui": "@/components/ui", // UI component library
+      "lib": "@/lib", // Library code
+      "hooks": "@/hooks" // Custom React hooks
     }
 }

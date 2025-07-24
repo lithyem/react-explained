@@ -1,21 +1,43 @@
+/**
+ * Tailwind CSS Configuration
+ * 
+ * This file configures Tailwind CSS for the entire application, including
+ * custom theme extensions, dark mode support, and shadcn/ui integration.
+ * The configuration enables consistent styling across all components.
+ */
+
 import type { Config } from "tailwindcss";
 
 export default {
+  // Dark mode configuration - uses class-based toggling
+  // This allows manual control over dark/light mode via CSS classes
   darkMode: ["class"],
+  
+  // Content paths - tells Tailwind where to look for class usage
+  // This enables tree-shaking to remove unused CSS in production
   content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
+  
   theme: {
     extend: {
+      // Custom border radius values using CSS custom properties
+      // This allows dynamic theming and consistent radius across components
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        lg: "var(--radius)", // Large radius from CSS variable
+        md: "calc(var(--radius) - 2px)", // Medium radius (calculated)
+        sm: "calc(var(--radius) - 4px)", // Small radius (calculated)
       },
+      // Custom color system using CSS custom properties
+      // This enables dynamic theming and consistent color usage across the app
+      // Each color references a CSS variable that can be changed for different themes
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        // Base application colors
+        background: "var(--background)", // Main background color
+        foreground: "var(--foreground)", // Main text color
+        
+        // Component-specific colors
         card: {
-          DEFAULT: "var(--card)",
-          foreground: "var(--card-foreground)",
+          DEFAULT: "var(--card)", // Card background
+          foreground: "var(--card-foreground)", // Card text color
         },
         popover: {
           DEFAULT: "var(--popover)",
@@ -62,29 +84,45 @@ export default {
           ring: "var(--sidebar-ring)",
         },
       },
+      
+      // Custom keyframe animations for interactive components
+      // These animations provide smooth transitions for UI elements
       keyframes: {
+        // Accordion expand animation - smoothly reveals content
         "accordion-down": {
           from: {
-            height: "0",
+            height: "0", // Start collapsed
           },
           to: {
-            height: "var(--radix-accordion-content-height)",
+            height: "var(--radix-accordion-content-height)", // Expand to full content height
           },
         },
+        // Accordion collapse animation - smoothly hides content
         "accordion-up": {
           from: {
-            height: "var(--radix-accordion-content-height)",
+            height: "var(--radix-accordion-content-height)", // Start at full height
           },
           to: {
-            height: "0",
+            height: "0", // Collapse to zero height
           },
         },
       },
+      
+      // Animation utility classes that can be used in components
+      // These reference the keyframes defined above with timing and easing
       animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
+        "accordion-down": "accordion-down 0.2s ease-out", // Fast, smooth expand
+        "accordion-up": "accordion-up 0.2s ease-out", // Fast, smooth collapse
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
+  
+  // Tailwind CSS plugins that extend functionality
+  plugins: [
+    // Adds additional animation utilities and improved animation support
+    require("tailwindcss-animate"),
+    
+    // Adds typography utilities for styling text content (prose classes)
+    require("@tailwindcss/typography")
+  ],
 } satisfies Config;
