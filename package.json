@@ -1,15 +1,36 @@
 {
-  "name": "rest-express",
-  "version": "1.0.0",
-  "type": "module",
-  "license": "MIT",
+  // Package.json - Node.js Project Configuration
+  // 
+  // This file defines the project metadata, dependencies, and build scripts
+  // for the full-stack task management application. It configures both
+  // client-side React and server-side Express components.
+  
+  "name": "rest-express", // Project identifier for npm registry
+  "version": "1.0.0", // Semantic version following major.minor.patch format
+  "type": "module", // Use ES modules instead of CommonJS (enables import/export)
+  "license": "MIT", // Open source license allowing commercial and private use
+  
+  // NPM Scripts - Development and deployment commands
   "scripts": {
+    // Development server with hot reload and TypeScript compilation
     "dev": "NODE_ENV=development tsx server/index.ts",
+    
+    // Production build - compiles client (Vite) and server (esbuild) separately
+    // 1. Vite builds the React client into static files
+    // 2. esbuild bundles the Express server into a single executable
     "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+    
+    // Production server startup - runs the compiled server bundle
     "start": "NODE_ENV=production node dist/index.js",
+    
+    // TypeScript type checking without compilation
     "check": "tsc",
+    
+    // Database schema migration using Drizzle Kit
     "db:push": "drizzle-kit push"
   },
+  // Production Dependencies
+  // These packages are required for the application to run in production
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
     "@jridgewell/trace-mapping": "^0.3.25",
@@ -75,6 +96,9 @@
     "zod": "^3.24.2",
     "zod-validation-error": "^3.4.0"
   },
+  // Development Dependencies
+  // These packages are only needed during development and building
+  // They include build tools, type definitions, and development utilities
   "devDependencies": {
     "@replit/vite-plugin-cartographer": "^0.2.7",
     "@replit/vite-plugin-runtime-error-modal": "^0.0.3",
@@ -99,6 +123,9 @@
     "typescript": "5.6.3",
     "vite": "^5.4.19"
   },
+  // Optional Dependencies
+  // These packages provide performance improvements but aren't required
+  // The application will work without them, but may be slower
   "optionalDependencies": {
     "bufferutil": "^4.0.8"
   }
