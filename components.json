@@ -1,49 +1,20 @@
 {
-    // shadcn/ui CLI Configuration File
-    // 
-    // This configuration file is used by the shadcn/ui CLI tool to automatically
-    // generate and manage UI components. It defines where components should be
-    // placed, how they should be styled, and what import paths to use.
-    //
-    // When you run commands like `npx shadcn@latest add button`, this config
-    // determines how the component will be generated and integrated into your project.
-    
-    // JSON Schema for validation and IDE support
     "$schema": "https://ui.shadcn.com/schema.json",
-    
-    // Component style variant - controls the visual style of generated components
-    // "new-york": Modern, refined styling with cleaner aesthetics
-    // "default": Standard styling approach with more traditional look
     "style": "new-york",
-    
-    // React Server Components support
-    // Set to false since this is a client-side React application
-    // If true, components would be generated with "use client" directives
     "rsc": false,
-    
-    // TypeScript JSX file extension
-    // When true, generates .tsx files instead of .jsx
-    // Ensures type safety for all generated components
     "tsx": true,
-    
-    // Tailwind CSS integration configuration
-    // These settings tell shadcn/ui how to work with your Tailwind setup
     "tailwind": {
-      "config": "tailwind.config.ts", // Path to your Tailwind configuration file
-      "css": "client/src/index.css", // Main CSS file containing Tailwind directives
-      "baseColor": "neutral", // Default color palette (slate, gray, zinc, neutral, stone)
-      "cssVariables": true, // Use CSS custom properties for theming (enables dark mode)
-      "prefix": "" // Prefix for Tailwind classes (empty = no prefix)
+      "config": "tailwind.config.ts",
+      "css": "client/src/index.css",
+      "baseColor": "neutral",
+      "cssVariables": true,
+      "prefix": ""
     },
-    
-    // Import path aliases for generated components
-    // These aliases must match your tsconfig.json path mapping for proper resolution
-    // When components are generated, they'll use these paths for imports
     "aliases": {
-      "components": "@/components", // Base components directory
-      "utils": "@/lib/utils", // Utility functions (cn helper, etc.)
-      "ui": "@/components/ui", // UI component library location
-      "lib": "@/lib", // Library code and configurations
-      "hooks": "@/hooks" // Custom React hooks directory
+      "components": "@/components",
+      "utils": "@/lib/utils",
+      "ui": "@/components/ui",
+      "lib": "@/lib",
+      "hooks": "@/hooks"
     }
 }
