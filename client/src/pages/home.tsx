@@ -1,3 +1,20 @@
+
+/**
+ * Home Page Component - Main Task Management Interface
+ * 
+ * This is the primary page component that renders the complete task management interface.
+ * It provides functionality for:
+ * - Displaying task statistics (total, completed, pending)
+ * - Adding new tasks with form validation
+ * - Toggling task completion status
+ * - Deleting tasks with confirmation
+ * - Responsive design with loading and error states
+ * 
+ * The component uses React Query for server state management, React Hook Form for
+ * form handling with Zod validation, and shadcn/ui components for consistent styling.
+ * Custom hooks are used to separate mutation logic from the UI component.
+ */
+
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -12,16 +29,25 @@ import { useTaskMutations } from "@/hooks/use-task-mutations";
 import { insertTaskSchema, type Task } from "@shared/schema";
 import { z } from "zod";
 
+// Extended form schema with additional validation for better UX
 const formSchema = insertTaskSchema.extend({
   title: z.string().min(1, "Task title is required").max(100, "Task title must be less than 100 characters"),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
+/**
+ * Main Home component that renders the complete task management interface
+ * Handles all user interactions and coordinates between UI state and server state
+ */
 export default function Home() {
+  // React Query client for manual cache invalidation
   const queryClient = useQueryClient();
+  
+  // Custom hook containing all task mutation functions (create, update, delete)
   const { createTask, updateTask, deleteTask } = useTaskMutations();
 
+  // React Hook Form setup with Zod validation for the new task form
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -29,40 +55,74 @@ export default function Home() {
     },
   });
 
-  // Fetch all tasks
+  /**
+   * React Query hook to fetch all tasks from the API
+   * Provides automatic caching, background refetching, and loading states
+   */
   const { data: tasks = [], isLoading, error } = useQuery<Task[]>({
     queryKey: ["/api/tasks"],
   });
 
+  /**
+   * Handles form submission for creating new tasks
+   * Validates data, calls mutation, and resets form on success
+   * @param data - Validated form data containing task title
+   */
   const onSubmit = (data: FormData) => {
     createTask.mutate(data, {
       onSuccess: () => {
+        // Reset form to clear input after successful creation
         form.reset();
       },
     });
   };
 
+  /**
+   * Toggles a task's completion status
+   * Updates both the completed flag and completedAt timestamp
+   * @param id - Task ID to update
+   * @param completed - Current completion status (will be toggled)
+   */
   const toggleTask = (id: number, completed: boolean) => {
     updateTask.mutate({ id, completed: !completed });
   };
 
+  /**
+   * Handles task deletion with user confirmation
+   * Shows confirmation dialog before permanently removing task
+   * @param id - Task ID to delete
+   */
   const handleDeleteTask = (id: number) => {
     if (window.confirm("Are you sure you want to delete this task?")) {
       deleteTask.mutate(id);
     }
   };
 
-  // Sort tasks: pending first, then completed
+  /**
+   * Sorts tasks for optimal user experience:
+   * 1. Pending tasks first (more actionable)
+   * 2. Within each group, newest tasks first
+   * This ensures users see their most recent and actionable items first
+   */
   const sortedTasks = [...tasks].sort((a, b) => {
     if (a.completed === b.completed) {
+      // Same completion status - sort by creation date (newest first)
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     }
+    // Different completion status - pending tasks first
     return a.completed ? 1 : -1;
   });
 
+  // Separate tasks into categories for organized display
   const pendingTasks = sortedTasks.filter(task => !task.completed);
   const completedTasks = sortedTasks.filter(task => task.completed);
 
+  /**
+   * Formats timestamps into human-readable relative time strings
+   * Provides better UX than showing raw timestamps
+   * @param date - ISO date string to format
+   * @returns Human-readable time ago string
+   */
   const formatTimeAgo = (date: string) => {
     const now = new Date();
     const past = new Date(date);
@@ -79,6 +139,10 @@ export default function Home() {
     }
   };
 
+  /**
+   * Error state UI - shows when API requests fail
+   * Provides user-friendly error message and retry functionality
+   */
   if (error) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -103,9 +167,13 @@ export default function Home() {
     );
   }
 
+  /**
+   * Main UI render - organized into distinct sections for better maintainability
+   */
   return (
     <div className="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8 min-h-screen bg-slate-50">
-      {/* Header Section */}
+      
+      {/* Header Section - App branding and description */}
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-slate-800 mb-2 flex items-center justify-center gap-3">
           <ListTodo className="text-blue-500" size={40} />
@@ -114,7 +182,7 @@ export default function Home() {
         <p className="text-slate-600 text-lg">Simple. Clean. Productive.</p>
       </div>
 
-      {/* Task Statistics */}
+      {/* Task Statistics Card - Overview of user's progress */}
       <Card className="mb-8">
         <CardContent className="pt-6">
           <div className="grid grid-cols-3 gap-4 text-center">
@@ -134,7 +202,7 @@ export default function Home() {
         </CardContent>
       </Card>
 
-      {/* Add Task Form */}
+      {/* Add Task Form - Input for creating new tasks */}
       <Card className="mb-8">
         <CardContent className="pt-6">
           <h2 className="text-xl font-semibold text-slate-800 mb-4 flex items-center gap-2">
@@ -142,6 +210,7 @@ export default function Home() {
             Add New Task
           </h2>
           
+          {/* Form with validation and submission handling */}
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <div className="flex flex-col sm:flex-row gap-3">
@@ -177,7 +246,7 @@ export default function Home() {
         </CardContent>
       </Card>
 
-      {/* Loading State */}
+      {/* Loading State - Shows while fetching tasks */}
       {isLoading && (
         <div className="flex justify-center items-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -185,7 +254,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Task List */}
+      {/* Task List Section - Main content area */}
       {!isLoading && (
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-slate-800 mb-6 flex items-center gap-2">
@@ -193,7 +262,7 @@ export default function Home() {
             Your Tasks
           </h2>
 
-          {/* Empty State */}
+          {/* Empty State - Shows when no tasks exist */}
           {tasks.length === 0 && (
             <Card>
               <CardContent className="pt-12 pb-12">
@@ -206,7 +275,7 @@ export default function Home() {
             </Card>
           )}
 
-          {/* Pending Tasks */}
+          {/* Pending Tasks Section - High priority, actionable items */}
           {pendingTasks.length > 0 && (
             <div className="space-y-3">
               {pendingTasks.map((task) => (
@@ -216,18 +285,21 @@ export default function Home() {
                 >
                   <CardContent className="p-4">
                     <div className="flex items-center gap-4">
+                      {/* Task completion checkbox */}
                       <Checkbox
                         checked={task.completed}
                         onCheckedChange={() => toggleTask(task.id, task.completed)}
                         disabled={updateTask.isPending}
                         className="transition-all duration-200"
                       />
+                      {/* Task details */}
                       <div className="flex-1">
                         <span className="text-slate-800 font-medium">{task.title}</span>
                         <div className="text-xs text-slate-500 mt-1">
                           Created {formatTimeAgo(task.createdAt)}
                         </div>
                       </div>
+                      {/* Delete button */}
                       <Button
                         variant="ghost"
                         size="sm"
@@ -244,9 +316,10 @@ export default function Home() {
             </div>
           )}
 
-          {/* Completed Tasks Section */}
+          {/* Completed Tasks Section - Lower priority, archived items */}
           {completedTasks.length > 0 && (
             <>
+              {/* Section header with completion count */}
               <div className="border-t border-slate-200 pt-4 mt-6">
                 <div className="flex items-center gap-2 mb-4">
                   <CheckCircle className="text-emerald-500" size={20} />
@@ -257,6 +330,7 @@ export default function Home() {
                 </div>
               </div>
 
+              {/* Completed tasks list with dimmed styling */}
               <div className="space-y-3">
                 {completedTasks.map((task) => (
                   <Card 
@@ -265,12 +339,14 @@ export default function Home() {
                   >
                     <CardContent className="p-4">
                       <div className="flex items-center gap-4">
+                        {/* Completed task checkbox */}
                         <Checkbox
                           checked={task.completed}
                           onCheckedChange={() => toggleTask(task.id, task.completed)}
                           disabled={updateTask.isPending}
                           className="transition-all duration-200"
                         />
+                        {/* Completed task details with strikethrough */}
                         <div className="flex-1">
                           <span className="text-slate-600 font-medium line-through">
                             {task.title}
@@ -279,6 +355,7 @@ export default function Home() {
                             Completed {task.completedAt ? formatTimeAgo(task.completedAt) : "recently"}
                           </div>
                         </div>
+                        {/* Delete button for completed tasks */}
                         <Button
                           variant="ghost"
                           size="sm"
@@ -298,7 +375,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Footer */}
+      {/* Footer - Simple branding and task count */}
       <div className="text-center mt-12 pt-8 border-t border-slate-200">
         <p className="text-slate-500 text-sm">
           Built with ❤️ for productivity • {tasks.length} tasks managed
