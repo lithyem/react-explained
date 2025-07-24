@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, CheckCircle, Trash2, ClipboardList, ListTodo } from "lucide-react";
@@ -8,8 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { useTaskMutations } from "@/hooks/use-task-mutations";
 import { insertTaskSchema, type Task } from "@shared/schema";
 import { z } from "zod";
 
@@ -20,8 +19,8 @@ const formSchema = insertTaskSchema.extend({
 type FormData = z.infer<typeof formSchema>;
 
 export default function Home() {
-  const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { createTask, updateTask, deleteTask } = useTaskMutations();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -35,83 +34,21 @@ export default function Home() {
     queryKey: ["/api/tasks"],
   });
 
-  // Create task mutation
-  const createTaskMutation = useMutation({
-    mutationFn: async (data: FormData) => {
-      const response = await apiRequest("POST", "/api/tasks", data);
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/tasks"] });
-      form.reset();
-      toast({
-        title: "Success",
-        description: "Task added successfully!",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to add task. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Update task mutation
-  const updateTaskMutation = useMutation({
-    mutationFn: async ({ id, completed }: { id: number; completed: boolean }) => {
-      const response = await apiRequest("PATCH", `/api/tasks/${id}`, { completed });
-      return response.json();
-    },
-    onSuccess: (_, { completed }) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/tasks"] });
-      toast({
-        title: completed ? "Task completed!" : "Task marked as pending",
-        description: completed ? "Great job! 🎉" : "Task moved back to pending",
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to update task. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Delete task mutation
-  const deleteTaskMutation = useMutation({
-    mutationFn: async (id: number) => {
-      await apiRequest("DELETE", `/api/tasks/${id}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/tasks"] });
-      toast({
-        title: "Task deleted",
-        description: "The task has been removed successfully.",
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to delete task. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
-
   const onSubmit = (data: FormData) => {
-    createTaskMutation.mutate(data);
+    createTask.mutate(data, {
+      onSuccess: () => {
+        form.reset();
+      },
+    });
   };
 
   const toggleTask = (id: number, completed: boolean) => {
-    updateTaskMutation.mutate({ id, completed: !completed });
+    updateTask.mutate({ id, completed: !completed });
   };
 
-  const deleteTask = (id: number) => {
+  const handleDeleteTask = (id: number) => {
     if (window.confirm("Are you sure you want to delete this task?")) {
-      deleteTaskMutation.mutate(id);
+      deleteTask.mutate(id);
     }
   };
 
@@ -228,11 +165,11 @@ export default function Home() {
                 </div>
                 <Button 
                   type="submit" 
-                  disabled={createTaskMutation.isPending}
+                  disabled={createTask.isPending}
                   className="px-6 py-3 min-w-[120px] transition-all duration-200"
                 >
                   <Plus className="mr-2" size={16} />
-                  {createTaskMutation.isPending ? "Adding..." : "Add Task"}
+                  {createTask.isPending ? "Adding..." : "Add Task"}
                 </Button>
               </div>
             </form>
@@ -282,7 +219,7 @@ export default function Home() {
                       <Checkbox
                         checked={task.completed}
                         onCheckedChange={() => toggleTask(task.id, task.completed)}
-                        disabled={updateTaskMutation.isPending}
+                        disabled={updateTask.isPending}
                         className="transition-all duration-200"
                       />
                       <div className="flex-1">
@@ -294,8 +231,8 @@ export default function Home() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => deleteTask(task.id)}
-                        disabled={deleteTaskMutation.isPending}
+                        onClick={() => handleDeleteTask(task.id)}
+                        disabled={deleteTask.isPending}
                         className="text-slate-400 hover:text-red-500 transition-colors p-1"
                       >
                         <Trash2 size={16} />
@@ -331,7 +268,7 @@ export default function Home() {
                         <Checkbox
                           checked={task.completed}
                           onCheckedChange={() => toggleTask(task.id, task.completed)}
-                          disabled={updateTaskMutation.isPending}
+                          disabled={updateTask.isPending}
                           className="transition-all duration-200"
                         />
                         <div className="flex-1">
@@ -345,8 +282,8 @@ export default function Home() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => deleteTask(task.id)}
-                          disabled={deleteTaskMutation.isPending}
+                          onClick={() => handleDeleteTask(task.id)}
+                          disabled={deleteTask.isPending}
                           className="text-slate-400 hover:text-red-500 transition-colors p-1"
                         >
                           <Trash2 size={16} />
