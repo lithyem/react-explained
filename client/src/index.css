@@ -1,121 +1,275 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/**
+ * Global Styles and Theme Configuration
+ * 
+ * This file defines the complete styling system for the TaskFlow application:
+ * - Tailwind CSS integration with custom theme variables
+ * - Light and dark mode color schemes
+ * - Custom animations for enhanced user experience
+ * - Component-specific styling overrides
+ */
 
+/* Tailwind CSS Directives - Import Tailwind's utility classes */
+@tailwind base;      /* Reset styles and base HTML element styles */
+@tailwind components;/* Component-level utility classes */
+@tailwind utilities; /* All utility classes for responsive design */
+
+/**
+ * Light Theme Color Palette
+ * 
+ * CSS custom properties that define the color scheme for light mode.
+ * These variables are used by shadcn/ui components and can be 
+ * dynamically changed for theming.
+ * 
+ * Color Format: HSL (Hue, Saturation, Lightness)
+ * - Provides better color manipulation capabilities
+ * - Easier to create consistent color variations
+ * - Better accessibility with lightness control
+ */
 :root {
-  --background: hsl(0, 0%, 100%);
-  --foreground: hsl(20, 14.3%, 4.1%);
-  --muted: hsl(60, 4.8%, 95.9%);
-  --muted-foreground: hsl(25, 5.3%, 44.7%);
-  --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(20, 14.3%, 4.1%);
-  --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(20, 14.3%, 4.1%);
-  --border: hsl(20, 5.9%, 90%);
-  --input: hsl(20, 5.9%, 90%);
-  --primary: hsl(207, 90%, 54%);
-  --primary-foreground: hsl(211, 100%, 99%);
-  --secondary: hsl(60, 4.8%, 95.9%);
-  --secondary-foreground: hsl(24, 9.8%, 10%);
-  --accent: hsl(60, 4.8%, 95.9%);
-  --accent-foreground: hsl(24, 9.8%, 10%);
-  --destructive: hsl(0, 84.2%, 60.2%);
-  --destructive-foreground: hsl(60, 9.1%, 97.8%);
-  --ring: hsl(20, 14.3%, 4.1%);
-  --radius: 0.5rem;
+  /* Base colors for main content areas */
+  --background: hsl(0, 0%, 100%);        /* Pure white background */
+  --foreground: hsl(20, 14.3%, 4.1%);   /* Dark text on light backgrounds */
+  
+  /* Muted colors for secondary content */
+  --muted: hsl(60, 4.8%, 95.9%);        /* Light gray backgrounds */
+  --muted-foreground: hsl(25, 5.3%, 44.7%); /* Medium gray text */
+  
+  /* Popup and overlay colors */
+  --popover: hsl(0, 0%, 100%);          /* White popup backgrounds */
+  --popover-foreground: hsl(20, 14.3%, 4.1%); /* Dark text in popups */
+  
+  /* Card component colors */
+  --card: hsl(0, 0%, 100%);             /* White card backgrounds */
+  --card-foreground: hsl(20, 14.3%, 4.1%); /* Dark text on cards */
+  
+  /* Interactive element colors */
+  --border: hsl(20, 5.9%, 90%);         /* Light borders */
+  --input: hsl(20, 5.9%, 90%);          /* Input field backgrounds */
+  
+  /* Brand and action colors */
+  --primary: hsl(207, 90%, 54%);        /* TaskFlow blue - main brand color */
+  --primary-foreground: hsl(211, 100%, 99%); /* White text on blue */
+  
+  /* Secondary action colors */
+  --secondary: hsl(60, 4.8%, 95.9%);    /* Light gray for secondary buttons */
+  --secondary-foreground: hsl(24, 9.8%, 10%); /* Dark text on secondary */
+  
+  /* Accent colors for highlights */
+  --accent: hsl(60, 4.8%, 95.9%);       /* Light accent backgrounds */
+  --accent-foreground: hsl(24, 9.8%, 10%); /* Dark text on accents */
+  
+  /* Destructive action colors (delete, error) */
+  --destructive: hsl(0, 84.2%, 60.2%);  /* Red for dangerous actions */
+  --destructive-foreground: hsl(60, 9.1%, 97.8%); /* Light text on red */
+  
+  /* Focus and selection colors */
+  --ring: hsl(20, 14.3%, 4.1%);         /* Focus ring color */
+  
+  /* Border radius for consistent rounded corners */
+  --radius: 0.5rem;                     /* 8px border radius */
 }
 
+/**
+ * Dark Theme Color Palette
+ * 
+ * Alternative color scheme for dark mode functionality.
+ * Applied when the 'dark' class is present on a parent element.
+ * 
+ * Design principles for dark theme:
+ * - Reduces eye strain in low-light environments
+ * - Maintains sufficient contrast ratios for accessibility
+ * - Preserves brand colors (primary blue remains the same)
+ * - Uses cooler tones for better nighttime viewing
+ */
 .dark {
-  --background: hsl(240, 10%, 3.9%);
-  --foreground: hsl(0, 0%, 98%);
-  --muted: hsl(240, 3.7%, 15.9%);
-  --muted-foreground: hsl(240, 5%, 64.9%);
-  --popover: hsl(240, 10%, 3.9%);
-  --popover-foreground: hsl(0, 0%, 98%);
-  --card: hsl(240, 10%, 3.9%);
-  --card-foreground: hsl(0, 0%, 98%);
-  --border: hsl(240, 3.7%, 15.9%);
-  --input: hsl(240, 3.7%, 15.9%);
-  --primary: hsl(207, 90%, 54%);
-  --primary-foreground: hsl(211, 100%, 99%);
-  --secondary: hsl(240, 3.7%, 15.9%);
-  --secondary-foreground: hsl(0, 0%, 98%);
-  --accent: hsl(240, 3.7%, 15.9%);
-  --accent-foreground: hsl(0, 0%, 98%);
-  --destructive: hsl(0, 62.8%, 30.6%);
-  --destructive-foreground: hsl(0, 0%, 98%);
-  --ring: hsl(240, 4.9%, 83.9%);
+  /* Base colors - inverted from light theme */
+  --background: hsl(240, 10%, 3.9%);    /* Very dark blue-gray background */
+  --foreground: hsl(0, 0%, 98%);        /* Near-white text */
+  
+  /* Muted colors - darker variants for secondary content */
+  --muted: hsl(240, 3.7%, 15.9%);       /* Dark gray for muted backgrounds */
+  --muted-foreground: hsl(240, 5%, 64.9%); /* Medium gray for secondary text */
+  
+  /* Popup and overlay colors */
+  --popover: hsl(240, 10%, 3.9%);       /* Dark popup backgrounds */
+  --popover-foreground: hsl(0, 0%, 98%); /* Light text in popups */
+  
+  /* Card component colors */
+  --card: hsl(240, 10%, 3.9%);          /* Dark card backgrounds */
+  --card-foreground: hsl(0, 0%, 98%);   /* Light text on cards */
+  
+  /* Interactive element colors */
+  --border: hsl(240, 3.7%, 15.9%);      /* Dark borders */
+  --input: hsl(240, 3.7%, 15.9%);       /* Dark input backgrounds */
+  
+  /* Brand colors - primary remains consistent across themes */
+  --primary: hsl(207, 90%, 54%);        /* Same TaskFlow blue */
+  --primary-foreground: hsl(211, 100%, 99%); /* White text on blue */
+  
+  /* Secondary colors adjusted for dark theme */
+  --secondary: hsl(240, 3.7%, 15.9%);   /* Dark secondary backgrounds */
+  --secondary-foreground: hsl(0, 0%, 98%); /* Light text on secondary */
+  
+  /* Accent colors for dark theme */
+  --accent: hsl(240, 3.7%, 15.9%);      /* Dark accent backgrounds */
+  --accent-foreground: hsl(0, 0%, 98%);  /* Light text on accents */
+  
+  /* Destructive colors - darker red for better dark theme integration */
+  --destructive: hsl(0, 62.8%, 30.6%);  /* Darker red for dangerous actions */
+  --destructive-foreground: hsl(0, 0%, 98%); /* Light text on red */
+  
+  /* Focus colors adjusted for dark theme */
+  --ring: hsl(240, 4.9%, 83.9%);        /* Light focus ring on dark background */
+  
+  /* Border radius remains consistent */
   --radius: 0.5rem;
 }
 
+/**
+ * Base Layer Styles
+ * 
+ * Fundamental styling that applies to all elements.
+ * These styles use Tailwind's @apply directive to apply utility classes
+ * and ensure consistent theming across the application.
+ */
 @layer base {
+  /**
+   * Universal border styling
+   * Ensures all elements use the CSS custom property for consistent theming
+   */
   * {
     @apply border-border;
   }
 
+  /**
+   * Body element styling
+   * - font-sans: Uses the system font stack for better performance
+   * - antialiased: Improves text rendering on high-DPI displays
+   * - bg-background: Uses the theme-aware background color
+   * - text-foreground: Uses the theme-aware text color
+   */
   body {
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
 
-/* Custom animations for task interactions */
+/**
+ * Custom Animations and Interactive Styles
+ * 
+ * Enhanced user experience through carefully crafted animations and transitions.
+ * All animations follow the principle of being subtle yet meaningful.
+ */
+
+/**
+ * Fade In Animation
+ * 
+ * Smooth entrance animation for new elements (like newly created tasks).
+ * Creates a gentle appearance effect with slight upward movement.
+ * 
+ * Usage: Applied to .task-item class
+ * Duration: 300ms for responsive feel without being jarring
+ */
 @keyframes fadeIn {
   from { 
-    opacity: 0; 
-    transform: translateY(10px); 
+    opacity: 0;                    /* Start invisible */
+    transform: translateY(10px);   /* Start 10px below final position */
   }
   to { 
-    opacity: 1; 
-    transform: translateY(0); 
+    opacity: 1;                    /* End fully visible */
+    transform: translateY(0);      /* End at final position */
   }
 }
 
+/**
+ * Slide Up Animation
+ * 
+ * More pronounced entrance animation for important elements.
+ * Provides stronger visual feedback for significant UI changes.
+ * 
+ * Usage: Available for modal dialogs or major content changes
+ * Duration: Designed for 300-500ms animations
+ */
 @keyframes slideUp {
   from { 
-    opacity: 0; 
-    transform: translateY(20px); 
+    opacity: 0;                    /* Start invisible */
+    transform: translateY(20px);   /* Start 20px below (more movement) */
   }
   to { 
-    opacity: 1; 
-    transform: translateY(0); 
+    opacity: 1;                    /* End fully visible */
+    transform: translateY(0);      /* End at final position */
   }
 }
 
-/* Task item animations */
+/**
+ * Task Item Styling
+ * 
+ * Applied to individual task items in the task list.
+ * Combines entrance animation with hover effects for better interaction feedback.
+ */
 .task-item {
-  animation: fadeIn 0.3s ease-in-out;
-  transition: all 0.3s ease;
+  animation: fadeIn 0.3s ease-in-out;  /* Entrance animation */
+  transition: all 0.3s ease;           /* Smooth hover transitions */
 }
 
+/**
+ * Task Item Hover Effect
+ * 
+ * Subtle lift effect on hover to indicate interactivity.
+ * The 1px upward movement creates a sense of elevation.
+ */
 .task-item:hover {
-  transform: translateY(-1px);
+  transform: translateY(-1px);     /* Slight upward movement */
 }
 
-/* Form input focus animation */
+/**
+ * Form Input Focus Styling
+ * 
+ * Enhanced focus states for form inputs to improve accessibility and UX.
+ * Combines visual lift with a colored shadow using the brand primary color.
+ */
 .form-input:focus {
-  transform: translateY(-1px);
-  box-shadow: 0 0 0 3px hsl(207, 90%, 54%, 0.1);
+  transform: translateY(-1px);     /* Lift effect */
+  box-shadow: 0 0 0 3px hsl(207, 90%, 54%, 0.1); /* Blue glow with 10% opacity */
 }
 
-/* Smooth transitions for all interactive elements */
+/**
+ * Global Interactive Element Transitions
+ * 
+ * Ensures all interactive elements have smooth state transitions.
+ * Applied to buttons, inputs, and checkbox elements for consistency.
+ * 
+ * Duration: 200ms for immediate feedback without lag
+ */
 button, input, [role="checkbox"] {
   transition: all 0.2s ease;
 }
 
-/* Custom scrollbar for better UX */
+/**
+ * Custom Scrollbar Styling
+ * 
+ * WebKit-based browsers (Chrome, Safari, Edge) custom scrollbar design.
+ * Provides a more refined appearance that matches the application theme.
+ * 
+ * Note: This is not supported in Firefox, which uses system scrollbars.
+ */
+
+/* Scrollbar width - thin design for minimal visual impact */
 ::-webkit-scrollbar {
   width: 6px;
 }
 
+/* Scrollbar track - the background area of the scrollbar */
 ::-webkit-scrollbar-track {
-  background: hsl(60, 4.8%, 95.9%);
+  background: hsl(60, 4.8%, 95.9%);    /* Matches muted background color */
 }
 
+/* Scrollbar thumb - the draggable portion */
 ::-webkit-scrollbar-thumb {
-  background: hsl(25, 5.3%, 44.7%);
-  border-radius: 3px;
+  background: hsl(25, 5.3%, 44.7%);    /* Matches muted foreground color */
+  border-radius: 3px;                  /* Rounded edges */
 }
 
+/* Scrollbar thumb hover state - darker for better visibility */
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(20, 14.3%, 4.1%);
+  background: hsl(20, 14.3%, 4.1%);    /* Darker on hover */
 }
