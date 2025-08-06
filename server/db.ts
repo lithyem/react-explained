@@ -14,7 +14,9 @@
  */
 
 import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
+import { drizzle as drizzleNeon } from 'drizzle-orm/neon-serverless';
+import { drizzle as drizzlePg } from 'drizzle-orm/node-postgres';
+import pg from 'pg';
 import ws from "ws";
 import * as schema from "@shared/schema";
 
@@ -44,28 +46,43 @@ if (!process.env.DATABASE_URL) {
 }
 
 /**
- * Connection Pool Instance
+ * Database Connection Detection
  * 
- * Creates a connection pool using the Neon serverless driver.
- * Connection pooling provides several benefits:
- * - Efficient resource utilization by reusing connections
- * - Better performance through connection reuse
- * - Automatic connection management and cleanup
- * - Scalability for handling multiple concurrent requests
+ * Determines whether to use Neon serverless driver or standard PostgreSQL driver
+ * based on the database URL. Local development uses standard PostgreSQL,
+ * while production uses Neon's serverless capabilities.
  */
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const isNeonDatabase = process.env.DATABASE_URL.includes('neon.tech') || 
+                      process.env.DATABASE_URL.includes('neon.dev');
 
 /**
- * Drizzle Database Instance
+ * Connection Pool and Database Instance
  * 
- * Initializes Drizzle ORM with the connection pool and schema definitions.
- * This provides:
- * - Type-safe database queries and mutations
- * - Automatic TypeScript type inference from schema
- * - SQL query building with compile-time validation
- * - Integration with our shared schema types
- * 
- * The schema import ensures that all table definitions and types
- * are available for database operations throughout the application.
+ * Creates appropriate connection pool and database instance based on the environment:
+ * - Neon serverless driver for production (WebSocket-based)
+ * - Standard PostgreSQL driver for local development
  */
-export const db = drizzle({ client: pool, schema });
+let pool: any;
+let db: any;
+
+if (isNeonDatabase) {
+  /**
+   * Neon Serverless Configuration
+   * 
+   * Uses Neon's serverless driver for cloud deployments.
+   * Provides WebSocket-based connections with automatic scaling.
+   */
+  pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  db = drizzleNeon({ client: pool, schema });
+} else {
+  /**
+   * Standard PostgreSQL Configuration
+   * 
+   * Uses standard node-postgres driver for local development.
+   * Provides traditional TCP connections to PostgreSQL.
+   */
+  pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+  db = drizzlePg({ client: pool, schema });
+}
+
+export { pool, db };

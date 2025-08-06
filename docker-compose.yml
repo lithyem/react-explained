@@ -1,0 +1,110 @@
+
+services:
+  # PostgreSQL Database Service
+  postgres:
+    image: postgres:15-alpine
+    container_name: taskflow-postgres
+    environment:
+      POSTGRES_DB: taskflow
+      POSTGRES_USER: taskflow
+      POSTGRES_PASSWORD: taskflow_dev_password
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./drizzle:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskflow -d taskflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - taskflow-network
+
+  # TaskFlow Application Service (Development)
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: taskflow-app-dev
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://taskflow:taskflow_dev_password@postgres:5432/taskflow
+      PORT: 5000
+    ports:
+      - "3000:5000"
+    volumes:
+      # Mount source code for hot reloading
+      - ./client:/app/client
+      - ./server:/app/server
+      - ./shared:/app/shared
+      - ./package.json:/app/package.json
+      - ./tsconfig.json:/app/tsconfig.json
+      - ./vite.config.ts:/app/vite.config.ts
+      - ./drizzle.config.ts:/app/drizzle.config.ts
+      # Exclude node_modules to use container's version
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - taskflow-network
+    profiles:
+      - dev
+
+  # TaskFlow Application Service (Production)
+  app-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: taskflow-app-prod
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://taskflow:taskflow_dev_password@postgres:5432/taskflow
+      PORT: 5000
+    ports:
+      - "3000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - taskflow-network
+    profiles:
+      - prod
+
+  # Database Migration Service
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev-deps
+    container_name: taskflow-migrate
+    environment:
+      DATABASE_URL: postgresql://taskflow:taskflow_dev_password@postgres:5432/taskflow
+    command: npm run db:push
+    volumes:
+      - ./shared:/app/shared
+      - ./drizzle.config.ts:/app/drizzle.config.ts
+      - ./package.json:/app/package.json
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - taskflow-network
+    profiles:
+      - migrate
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  taskflow-network:
+    driver: bridge
