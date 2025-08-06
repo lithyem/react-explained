@@ -26,6 +26,13 @@ TaskFlow is a full-stack task management application built with React, Express.j
 - `docker-compose down` - Stop all services
 - `docker-compose down -v` - Stop services and remove volumes (reset database)
 
+### Railway Deployment
+- Railway will automatically provision PostgreSQL database via `railway.json` plugins
+- Uses production Dockerfile target with optimized build
+- Environment variables needed: `DATABASE_URL` (auto-set), `NODE_ENV=production`, `PORT` (auto-set)
+- Health check endpoint: `/api/tasks`
+- Deploy command: Push to GitHub → Railway detects and builds automatically
+
 ## Architecture Overview
 
 ### Monorepo Structure
@@ -111,6 +118,84 @@ The application includes Docker configuration for local development:
 - Password: `taskflow_dev_password`
 - Port: `5432`
 - Connection string: `postgresql://taskflow:taskflow_dev_password@postgres:5432/taskflow`
+
+## Railway Deployment Guide
+
+### Prerequisites
+1. GitHub repository with the code
+2. Railway account connected to GitHub
+
+### Deployment Steps
+
+**1. Configure Railway Files**
+The following files are configured for Railway deployment:
+- `railway.json` - Railway service configuration with PostgreSQL plugin
+- `.railwayignore` - Files to exclude from Railway builds
+- `Dockerfile` - Multi-stage production build
+
+**2. Deploy to Railway**
+```bash
+# Commit and push to GitHub
+git add .
+git commit -m "Railway deployment configuration"
+git push
+```
+
+**3. Create Railway Project**
+1. Go to [Railway Dashboard](https://railway.app/)
+2. Click "New Project" → "Deploy from GitHub repo"
+3. Select your repository
+4. Railway will automatically:
+   - Create the application service
+   - Provision PostgreSQL database (via plugins config)
+   - Set up environment variables
+
+**4. Environment Variables (Auto-configured)**
+Railway automatically sets these variables:
+- `DATABASE_URL` - PostgreSQL connection string from plugin
+- `NODE_ENV` - Set to "production" 
+- `PORT` - Railway-assigned port
+
+**5. Database Migration**
+After first deployment, run database migration:
+```bash
+# In Railway dashboard, go to your service
+# Open the "Deploy" tab and run:
+npm run db:push
+```
+
+**6. Access Your Application**
+Your app will be available at: `https://your-service-name.railway.app`
+
+### Railway-Specific Features
+
+**Automatic Database Connection**
+The database configuration in `server/db.ts` automatically detects Railway's Neon-style connection and uses the appropriate driver.
+
+**Health Checks**
+Railway monitors the `/api/tasks` endpoint to ensure the service is healthy.
+
+**Cost Optimization**
+- Uses standard PostgreSQL driver (no WebSocket overhead)
+- Optimized Docker build with layer caching
+- Production build excludes development dependencies
+
+### Troubleshooting Railway Deployment
+
+**Database Connection Issues:**
+- Verify PostgreSQL plugin created successfully
+- Check that `DATABASE_URL` environment variable is set
+- Database takes 1-2 minutes to provision on first deploy
+
+**Build Failures:**
+- Check Railway build logs in dashboard
+- Ensure all dependencies are in `package.json` (not just `package-lock.json`)
+- Verify Dockerfile syntax and paths
+
+**Application Won't Start:**
+- Check that `PORT` environment variable is being used
+- Verify the health check endpoint `/api/tasks` is accessible
+- Review application logs in Railway dashboard
 
 ## Development Guidelines
 
